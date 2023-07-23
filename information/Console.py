@@ -80,6 +80,9 @@ class Console:
     print(DELIMITER)
     print("\n")
 
+  '''
+  This method is for providing informational messages to the console.
+  '''
   def Info(self, information: str) -> None:
     if (self.__enInfo):
       current_time = self.__getTime()
@@ -89,6 +92,9 @@ class Console:
     else:
       pass
 
+  '''
+  This method is for reporting warnings.
+  '''
   def W(self, warning: str) -> None:
     self.__warningCount += 1
     if (self.__enWarn):
@@ -99,6 +105,9 @@ class Console:
     else:
       pass
 
+  '''
+  This method is for reporting errors.
+  '''
   def E(self, error: str) -> None:
     self.__errorCount += 1
     if (self.__enErr):
@@ -109,12 +118,17 @@ class Console:
     else:
       pass
 
+  '''
+  This method is for showing the error and warning counts and reporting if the test passed or failed.
+  '''
   def DumpCounts(self) -> None:
     current_time = self.__getTime()
     print("\n")
     print("Printing Statistics, {}".format(current_time))
     print("    * Number of Warnings: {}".format(self.__warningCount))
     print("    * Number of   Errors: {}".format(self.__errorCount))
+    if (self.__errorCount > 0):
+      print("\nTest Failed!!!")
     print("\n")
 
 console = Console("test_module")
