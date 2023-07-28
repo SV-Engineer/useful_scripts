@@ -2,13 +2,9 @@
 #  Author: Austin | @SV-Engineer
 #    Date: 22JUL2023
 #
-# Purpose: This script is for renaming music files to a consistent
-#          format rather than the various non-standardized formats
-#          they come in off of CDs.
+# Purpose: This script is for logging information to the console.
 #
-# Warning: Checking if the desired format is already the name is not
-#          implemented. Behavior unverified and will likely throw an
-#          index out of range error when using the SUB_STR_IDX variable.
+# Warning: A threaded example of this is not available at this time.
 #
 ######################################################################
 
