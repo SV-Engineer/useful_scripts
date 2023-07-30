@@ -4,10 +4,21 @@
 #
 # Purpose: This script is for logging information to the console.
 #
+#   Notes:
+#           1.  The multiprocessing module contains a submodule called
+#               "logging" that is likely far more robust than that
+#               which is implemented here. The extended class is for
+#               learning and explanatory purposes.
+#
 ######################################################################
 
 import datetime
-from multiprocessing import Process, Lock
+import multiprocessing as mp
+import sys
+from argparse import ArgumentParser
+from argparse import Namespace
+import random
+from time import sleep
 
 START_SECTION_WIDTH = 80
 DELIMITER           = "=" * START_SECTION_WIDTH
@@ -35,6 +46,7 @@ class Console:
     self.__warning_count = 0
     self.__error_count   = 0
     self.__name          = name
+
   '''
   The following 3 methods disable the related logging to the console.
   '''
@@ -161,21 +173,140 @@ class Console_Threaded(Console):
   '''
   # A "static" lock is needed. The intent is that all class instances
   # share the following lock such that it is used as a mutex.
-  lock_console = Lock()
+  lock_console = mp.Lock()
+
+  '''
+  Constructor
+  '''
   def __init__(self, name: str) -> None:
     super().__init__(name)
+
+  '''
+  Returns the modules name.
+  '''
+  def get_name() -> str:
+    return super().__name
+
+  '''
+  This method is for providing informational messages to the console.
+  It overrides the parent class method in order to add a lock acquirement
+  to the method.
+  '''
+  def info(self, information: str) -> None:
+    # Obtain the lock.
+    Console_Threaded.lock_console.acquire()
+
+    # Call the parent class method now that
+    # a lock has been acquired.
+    super().info(information)
+
+    # Release the lock.
+    Console_Threaded.lock_console.release()
+
+  '''
+  This method is for reporting warnings. It overrides the parent class 
+  method in order to add a lock acquirement to the method.
+  '''
+  def w(self, warning: str) -> None:
+    # Obtain the lock.
+    Console_Threaded.lock_console.acquire()
+
+    # Call the parent class method now that
+    # a lock has been acquired.
+    super().w(warning)
+
+    # Release the lock.
+    Console_Threaded.lock_console.release()
+
+  '''
+  This method is for reporting errors.
+  '''
+  def e(self, error: str) -> None:
+    # Obtain the lock.
+    Console_Threaded.lock_console.acquire()
+
+    # Call the parent class method now that
+    # a lock has been acquired.
+    super().e(error)
+
+    # Release the lock.
+    Console_Threaded.lock_console.release()
 
 ######################################################################
 # END - Class Definitions
 ######################################################################
 
+def get_cmd_line_args() -> Namespace:
+  '''
+  The purpose of this function is to add command line functionality to the script so that the script
+  itself does not need to be stored in the same directory as the music files.
+  TODO: Add the recursive functionality.
+  '''
+  ap = ArgumentParser("Directory to run this script on")
+  ap.add_argument("--thread", type=bool,  default=True, required=False, help="If this argument is passed as True the threading test (child) will occur. Otherwise the parent will be tested.")
+
+  return ap.parse_args()
+
+# It's really important to have a timeout thread when dealing with threads that themselves have infinite loops built in.
+def time_out_thread(threads: list, time_out: float) -> None:
+  sleep_time = time_out
+  console = Console_Threaded("Timeout thread.")
+  console.info("Initialized. Sleeping for {}".format(sleep_time))
+  sleep(sleep_time)
+  console.info("Sleep time completed. Beginning thread kill.")
+  for i in range (len(threads) - 1):
+    console.info("Killing thread: {}".format(i))
+    threads[i].terminate()
+
+def logger_thread(n: int) -> None:
+  time_out = 0
+  kill_me  = False
+  name     = "Test Thread: {}".format(n)
+  console  = Console_Threaded(name)
+  sleep_time = float(random.randint(1, 7))/3.0
+
+  while(not kill_me):
+    console.info("I am accessing the console and outputting information")
+    sleep(sleep_time)
+    time_out += 1
+
+    if (time_out > 25):
+      kill_me = True
+
+def spawn_threads(num_threads: int) -> list:
+  proc_handles = []
+  for i in range(num_threads):
+    proc = mp.Process(target=logger_thread, args=(i,))
+    proc_handles.append(proc)
+
+  return proc_handles
+
 def main():
   console = Console("test_module")
   console.start_section("This is a test of the Console Class")
-  console.info("This is an informational message")
-  console.w("This is a warning messge")
-  console.e("This is an error message")
-  console.dump_counts()
+
+  # No arguements passed
+  if not len(sys.argv) > 1:
+    console.info("This is an informational message")
+    console.w("This is a warning messge")
+    console.e("This is an error message")
+    console.dump_counts()
+
+  else:
+    args = get_cmd_line_args()
+
+    if args.thread:
+
+      proc_handles = spawn_threads(2)
+
+      for handle in proc_handles:
+        handle.start()
+
+      #proc = mp.Process(target=time_out_thread, args=(proc_handles, 7.5))
+      #proc.start()
+
+    else:
+      pass
 
 if __name__ == "__main__":
   main()
