@@ -4,11 +4,10 @@
 #
 # Purpose: This script is for logging information to the console.
 #
-# Warning: A threaded example of this is not available at this time.
-#
 ######################################################################
 
 import datetime
+from multiprocessing import Process, Lock
 
 START_SECTION_WIDTH = 80
 DELIMITER           = "=" * START_SECTION_WIDTH
@@ -17,6 +16,9 @@ INFO_MSG            = "*INFO: module - {} - {}, {}"
 WARN_MSG            = "*WARN: module - {} - {}, {}"
 ERR_MSG             = "**ERR: module - {} - {}, {}"
 
+######################################################################
+# BEGIN - Class Definitions
+######################################################################
 class Console:
   '''
   The purpose of this class is to provide verbose logging to the console. There are three
@@ -27,42 +29,42 @@ class Console:
   '''
   def __init__(self, name: str) -> None:
     # All Logging is enabled by default
-    self.__enInfo       = True
-    self.__enWarn       = True
-    self.__enErr        = True
-    self.__warningCount = 0
-    self.__errorCount   = 0
-    self.__name         = name
+    self.__en_info       = True
+    self.__en_warn       = True
+    self.__en_err        = True
+    self.__warning_count = 0
+    self.__error_count   = 0
+    self.__name          = name
   '''
   The following 3 methods disable the related logging to the console.
   '''
-  def DisableInfo(self) -> None:
-    self.__enInfo = False
+  def disable_info(self) -> None:
+    self.__en_info = False
 
-  def DisableWarn(self) -> None:
-    self.__enWarn = False
+  def disable_warn(self) -> None:
+    self.__en_warn = False
 
-  def DisableErr(self) -> None:
-    self.__enErr  = False
+  def disable_err(self) -> None:
+    self.__en_err  = False
 
   '''
   The following three methods enable the logging of the relavent
   kind to the console.
   '''
-  def EnableInfo(self) -> None:
-    self.__enInfo = True
+  def enable_info(self) -> None:
+    self.__en_info = True
 
-  def EnableWarn(self) -> None:
-    self.__enWarn = True
+  def enable_warn(self) -> None:
+    self.__en_warn = True
 
-  def EnableErr(self) -> None:
-    self.__enErr  = True
+  def enable_err(self) -> None:
+    self.__en_err  = True
 
   '''
   This private method is used for attaching a time stamp to the messages
   that are output to the console.
   '''
-  def __getTime(self) -> str:
+  def __get_time(self) -> str:
     # use the datetime module to get the current date, hour, minute and second.
     current_time = datetime.datetime.now()
 
@@ -81,8 +83,8 @@ class Console:
   '''
   This method is used to indicate the start of a new test phase.
   '''
-  def StartSection(self, message: str) -> None:
-    current_time = self.__getTime()
+  def start_section(self, message: str) -> None:
+    current_time = self.__get_time()
     msg          = START_MSG.format(self.__name, message, current_time)
     print("\n")
     print(DELIMITER)
@@ -93,9 +95,9 @@ class Console:
   '''
   This method is for providing informational messages to the console.
   '''
-  def Info(self, information: str) -> None:
-    if (self.__enInfo):
-      current_time = self.__getTime()
+  def info(self, information: str) -> None:
+    if (self.__en_info):
+      current_time = self.__get_time()
       msg          = INFO_MSG.format(self.__name, information, current_time)
       print(msg)
 
@@ -105,10 +107,10 @@ class Console:
   '''
   This method is for reporting warnings.
   '''
-  def W(self, warning: str) -> None:
-    self.__warningCount += 1
-    if (self.__enWarn):
-      current_time = self.__getTime()
+  def w(self, warning: str) -> None:
+    self.__warning_count += 1
+    if (self.__en_warn):
+      current_time = self.__get_time()
       msg = WARN_MSG.format(self.__name, warning, current_time)
       print(msg)
 
@@ -118,10 +120,10 @@ class Console:
   '''
   This method is for reporting errors.
   '''
-  def E(self, error: str) -> None:
-    self.__errorCount += 1
-    if (self.__enErr):
-      current_time = self.__getTime()
+  def e(self, error: str) -> None:
+    self.__error_count += 1
+    if (self.__en_err):
+      current_time = self.__get_time()
       msg = ERR_MSG.format(self.__name, error, current_time)
       print(msg)
 
@@ -131,24 +133,49 @@ class Console:
   '''
   This method is for showing the error and warning counts and reporting if the test passed or failed.
   '''
-  def DumpCounts(self) -> None:
-    current_time = self.__getTime()
+  def dump_counts(self) -> None:
+    current_time = self.__get_time()
     print("\n")
     print("Printing Statistics, {}".format(current_time))
-    print("    * Number of Warnings: {}".format(self.__warningCount))
-    print("    * Number of   Errors: {}".format(self.__errorCount))
-    if (self.__errorCount > 0):
+    print("    * Number of Warnings: {}".format(self.__warning_count))
+    print("    * Number of   Errors: {}".format(self.__error_count))
+    if (self.__error_count > 0):
       print("\nTest Failed!!!")
+
+    else:
+      print("\nTest Passed!!!")
     print("\n")
 
+# endclass : Console
+
+class Console_Threaded(Console):
+  '''
+  The purpose of this class is to extend the Console class to be
+  enabled to function properly in the use case of threading. This
+  class overrides all of the methods contained within the Console
+  class and uses the "Super" keyword to wrap them in a mutex. The
+  idea is that the "start_section" method can print all of its
+  information without another thread interrupting. This directly
+  implies new methods may be written to output multiple lines
+  of data as well; such as a table of values.
+  '''
+  # A "static" lock is needed. The intent is that all class instances
+  # share the following lock such that it is used as a mutex.
+  lock_console = Lock()
+  def __init__(self, name: str) -> None:
+    super().__init__(name)
+
+######################################################################
+# END - Class Definitions
+######################################################################
 
 def main():
   console = Console("test_module")
-  console.StartSection("This is a test of the Console Class")
-  console.Info("This is an Informational message")
-  console.W("This is a warning messge")
-  console.E("This is an error message")
-  console.DumpCounts()
+  console.start_section("This is a test of the Console Class")
+  console.info("This is an informational message")
+  console.w("This is a warning messge")
+  console.e("This is an error message")
+  console.dump_counts()
 
 if __name__ == "__main__":
   main()
