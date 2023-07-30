@@ -33,7 +33,7 @@ ERR_MSG             = "**ERR: module - {} - {}, {}"
 class Console:
   '''
   The purpose of this class is to provide verbose logging to the console. There are three
-  types of logging: Informational, Warnings, and Errors. The StartSection method is considered
+  types of logging: Informational, Warnings, and Errors. The start_section method is considered
   informational. The reporting of these (with the exception of StartSection) may be turned on
   and off with the "Disable*" methods. Turning off the reporting does not disable the mechanism
   of counting how many warnings and errors that occur.
@@ -238,11 +238,9 @@ class Console_Threaded(Console):
 
 def get_cmd_line_args() -> Namespace:
   '''
-  The purpose of this function is to add command line functionality to the script so that the script
-  itself does not need to be stored in the same directory as the music files.
-  TODO: Add the recursive functionality.
+  The purpose of this function is to add command line functionality to the script for testing purposes.
   '''
-  ap = ArgumentParser("Directory to run this script on")
+  ap = ArgumentParser("Command line arguments.")
   ap.add_argument("--thread", type=bool,  default=True, required=False, help="If this argument is passed as True the threading test (child) will occur. Otherwise the parent will be tested.")
 
   return ap.parse_args()
