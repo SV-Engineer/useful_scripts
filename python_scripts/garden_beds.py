@@ -24,34 +24,6 @@ class GardenBed:
     print("#################################################################################")
     self._info(f"Garden bed {self.Name}:\n{NUM_INFO_NL_WS}* Length - {self.L} inches\n{NUM_INFO_NL_WS}* Width - {self.W} inches")
 
-  def _calculate_num_squares(self, dynamic_length : int) -> int:
-    m           = self.L / dynamic_length
-    n           = self.W / 2
-    num_squares = 0
-    temp        = 0
-    if (n < m):
-      temp = m
-      m    = n
-      n    = temp
-    
-    num_squares = ((m * (m + 1) * (2 * m + 1) / 6 + (n - m) * m * (m + 1) / 2))
-
-    return int(num_squares)
-
-  def _calculate_partial_square(self, dynamic_length : int) -> int:
-    m           = self.L / dynamic_length
-    n           = self.W / 2
-    num_squares = 0
-    temp        = 0
-    if (n < m):
-      temp = m
-      m    = n
-      n    = temp
-    
-    num_squares = ((m * (m + 1) * (2 * m + 1) / 6 + (n - m) * m * (m + 1) / 2)) % 1
-
-    return num_squares
-
   def _generate_block_sizes(self)->dict:
     sq_info = []
     for i in range(10, int(ceil(self.L))):
