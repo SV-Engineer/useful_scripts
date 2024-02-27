@@ -1,3 +1,6 @@
+from math import ceil
+
+NUM_ROWS       = 2
 NUM_INFO_NL_WS = 7*" "
 L_IDX          = 0
 W_IDX          = 1
@@ -21,9 +24,9 @@ class GardenBed:
     print("#################################################################################")
     self._info(f"Garden bed {self.Name}:\n{NUM_INFO_NL_WS}* Length - {self.L} inches\n{NUM_INFO_NL_WS}* Width - {self.W} inches")
 
-  def _calculate_num_squares(self, sq_dimensions : tuple) -> int:
-    m           = self.L / sq_dimensions[L_IDX]
-    n           = self.W / sq_dimensions[W_IDX]
+  def _calculate_num_squares(self, dynamic_length : int) -> int:
+    m           = self.L / dynamic_length
+    n           = self.W / 2
     num_squares = 0
     temp        = 0
     if (n < m):
@@ -35,9 +38,9 @@ class GardenBed:
 
     return int(num_squares)
 
-  def _calculate_partial_square(self, sq_dimensions : tuple) -> int:
-    m           = self.L / sq_dimensions[L_IDX]
-    n           = self.W / sq_dimensions[W_IDX]
+  def _calculate_partial_square(self, dynamic_length : int) -> int:
+    m           = self.L / dynamic_length
+    n           = self.W / 2
     num_squares = 0
     temp        = 0
     if (n < m):
@@ -51,19 +54,19 @@ class GardenBed:
 
   def _generate_block_sizes(self)->dict:
     sq_info = []
-    for i in range(8, int(self.L + (1.0 - self.L % 1))):
-      dimensions = (i, int(self.W / 2))
+    for i in range(10, int(ceil(self.L))):
       size_info = {
-        'N' : self._calculate_num_squares(dimensions),
-        'P' : self._calculate_partial_square(dimensions),
-        'L' : dimensions[L_IDX],
-        'W' : dimensions[W_IDX]
+        # 'N' : self._calculate_num_squares(i),
+        'N' : int(self.L / i),
+        #'P' : self._calculate_partial_square(i),
+        'P' : (self.L % i),
+        'L' : i,
+        'W' : int(self.W / NUM_ROWS)
       }
-
+      #print(f"{i} {(self.L % i)} - {size_info}")
       sq_info.append(size_info)
 
       # Gonna overwrite them anyways so delete here instead of waiting for garbage collector
-      del dimensions
       del size_info
 
     return sq_info
@@ -76,19 +79,15 @@ class GardenBed:
       greatest = None
 
       for i, block in enumerate(blocks):
-        if (block['N'] % 2 == 0):
-          if greatest is not None:
-            if (block['N'] > greatest['N']):
-              greatest = block
-
-            else:
-              self.Discarded.append(block)
-
-          else:
+        if greatest is not None:
+          if (block['N'] > greatest['N']):
             greatest = block
 
+          else:
+            self.Discarded.append(block)
+
         else:
-          continue
+          greatest = block
 
     return greatest
 
@@ -96,13 +95,12 @@ class GardenBed:
   def _optimize_space(self, blocks : list) -> dict:
     chosen = self._find_greatest_num_blocks(blocks)
     n_diff = 0.0
-    if (chosen['P'] > 0.20):
-      for d in self.Discarded:
-        n_diff = (abs(d['N'] - chosen['N']) / chosen['N']) * 100.0
-        if (n_diff < 17.5 and (d['P'] < 0.20)):
-          self.AltBlock = chosen
-          chosen        = d
-          break
+    
+    for d in self.Discarded:
+      if (chosen['P'] > d['P']):
+        self.AltBlock = chosen
+        chosen        = d
+        break
 
     return chosen
 
@@ -115,10 +113,7 @@ class GardenBed:
   def optimize_city_blocks(self) -> None:
     self.show_bed_info()
     self.Block = self._optimize_space(self._generate_block_sizes())
-    self._info(f"{self.Name} is optimized for blocks: {self.Block['N']} at dimensions of {self.Block['L']} x {self.Block['W']} (inches) and Partial of {self.Block['P']}")
-
-    if self.AltBlock is not None:
-      self._info(f"{self.Name} has alternate (original) block size: {self.AltBlock['N']} at dimensions of {self.AltBlock['L']} x {self.AltBlock['W']} (inches) and Partial of {self.AltBlock['P']}")
+    self._info(f"{self.Name} is optimized for 2 rows of {self.Block['N']} blocks at dimensions of {self.Block['L']} x {self.Block['W']} (inches) and Partial of {self.Block['P'] / 100.0}")
 
 def main():
   pass

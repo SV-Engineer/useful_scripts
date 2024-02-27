@@ -3,7 +3,6 @@ import matplotlib as plt
 
 from garden_beds import GardenBed
 
-
 def main():
   Alpha   = GardenBed("alpha", 108.0, 34.0)
   Bravo   = GardenBed("bravo", 89.5, 36.0)
