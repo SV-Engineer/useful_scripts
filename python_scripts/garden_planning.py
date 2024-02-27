@@ -126,7 +126,7 @@ class GardenBed:
     self._info(f"{self.Name} is optimized for blocks: {self.Block["N"]} at dimensions of {self.Block["L"]} x {self.Block["W"]} (inches) and Partial of {self.Block["P"]}")
 
     if self.AltBlock is not None:
-      self._info(f"{self.Name} is alternate block size: {self.AltBlock["N"]} at dimensions of {self.AltBlock["L"]} x {self.AltBlock["W"]} (inches) and Partial of {self.AltBlock["P"]}")
+      self._info(f"{self.Name} has alternate (original) block size: {self.AltBlock["N"]} at dimensions of {self.AltBlock["L"]} x {self.AltBlock["W"]} (inches) and Partial of {self.AltBlock["P"]}")
 
     self.show_discarded_choices()
 
