@@ -2,14 +2,12 @@ import random
 
 def main():
   family = [
-    "Dakota",
-    "Dana",
-    #"Darcy",
-    #"David",
-    "Mike",
-    #"Maggie",
-    "Tanis"#,
-    #"Taylor"
+    "Dak",
+    #"Dan",
+    #"Dav",
+    "Mik",
+    "Tan"#,
+    #"Tay"
   ]
 
   selected = random.choice(family)

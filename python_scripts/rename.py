@@ -10,6 +10,9 @@
 #          implemented. Behavior unverified and will likely throw an
 #          index out of range error when using the SUB_STR_IDX variable.
 #
+#    NOTE: Currently the global variable "RE_PATTERN" is the mechanism
+#          for communicating the format the file is currently in.
+#
 ######################################################################
 
 import os
