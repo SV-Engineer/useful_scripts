@@ -9,10 +9,48 @@
  * of bread-boarding required, nibbles are being utilized rather than bytes.
  * Address bits [10:4] are tied low and bits [3:0] are used. I/O bits [7:4] are
  * left floating and bits [3:0] are used.
+ * 
+ * @verbatim
+ * Pin Mapping: ARDUINO <--> SRAM (24 Pin DIP)
+ * Arduino Pin    |    SRAM Pin
+ * ---------------+------------------
+ * PB5 - D13      |    /CS  - PIN18
+ * PB4 - D12      |    /WE  - PIN21
+ * PB3 - D11      |    A3   - PIN5
+ * PB2 - D10      |    A2   - PIN6
+ * PB1 - D9       |    A1   - PIN7
+ * PB0 - D8       |    A0   - PIN8
+ * PD7 - D7       |    I/O3 - PIN13
+ * PD6 - D6       |    I/O2 - PIN11
+ * PD5 - D5       |    I/O1 - PIN10
+ * PD4 - D4       |    I/O0 - PIN9
+ * 
+ * Pin Mapping: SRAM <-- Breadboard
+ * SRAM Pin       |    RAIL
+ * ---------------+------------------
+ * A7   - PIN1    |    GND
+ * A6   - PIN2    |    GND
+ * A5   - PIN3    |    GND
+ * A4   - PIN4    |    GND
+ * GND  - PIN12   |    GND
+ * I/O4 - PIN14   |    NO-CONNECT
+ * I/O5 - PIN15   |    NO-CONNECT
+ * I/O6 - PIN16   |    NO-CONNECT
+ * I/O7 - PIN17   |    NO-CONNECT
+ * A10  - PIN19   |    GND
+ * /OE  - PIN20   |    GND
+ * A9   - PIN22   |    GND
+ * A8   - PIN23   |    GND
+ * VCC  - PIN24   |    VCC
+ * 
+ * @endverbatim
  *
  * @note RMW - read-modify-write
+ * 
+ * @note The OE enable is tied to ground. This may need to change in the future.
  *
  */
+
 
 /** @brief EXISTS for personal preference. */
 #define TRUE                        true
